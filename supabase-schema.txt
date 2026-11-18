@@ -1,0 +1,96 @@
+-- TRADEUP — esquema inicial para Supabase
+-- Ejecuta todo este archivo en Supabase > SQL Editor > New query.
+-- Después crea un bucket PUBLIC llamado "avatars" en Storage.
+
+create extension if not exists pgcrypto;
+
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  display_name text not null default 'Usuario' check (char_length(display_name) between 1 and 50),
+  username text not null unique check (username ~ '^[a-zA-Z0-9_]{3,20}$'),
+  bio text not null default '' check (char_length(bio) <= 300),
+  avatar_url text,
+  skills text[] not null default '{}',
+  social_links jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+create table if not exists public.skills (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  title text not null check (char_length(title) between 1 and 70),
+  category text not null default 'Otros',
+  emoji text not null default '✦',
+  description text not null default '' check (char_length(description) <= 400),
+  is_active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+create table if not exists public.reviews (
+  id uuid primary key default gen_random_uuid(),
+  reviewer_id uuid not null references public.profiles(id) on delete cascade,
+  reviewed_id uuid not null references public.profiles(id) on delete cascade,
+  rating int not null check (rating between 1 and 5),
+  comment text not null default '' check (char_length(comment) <= 400),
+  created_at timestamptz not null default now(),
+  constraint no_self_review check (reviewer_id <> reviewed_id),
+  constraint one_review_per_pair unique (reviewer_id, reviewed_id)
+);
+create table if not exists public.exchanges (
+  id uuid primary key default gen_random_uuid(),
+  from_user uuid not null references public.profiles(id) on delete cascade,
+  to_user uuid not null references public.profiles(id) on delete cascade,
+  message text not null default '' check (char_length(message) <= 1000),
+  status text not null default 'pending' check (status in ('pending','accepted','declined','completed')),
+  created_at timestamptz not null default now(),
+  constraint no_self_exchange check (from_user <> to_user)
+);
+create table if not exists public.messages (
+  id uuid primary key default gen_random_uuid(),
+  sender_id uuid not null references public.profiles(id) on delete cascade,
+  receiver_id uuid not null references public.profiles(id) on delete cascade,
+  content text not null check (char_length(content) between 1 and 1500),
+  created_at timestamptz not null default now(),
+  constraint no_self_message check (sender_id <> receiver_id)
+);
+
+alter table public.profiles enable row level security;
+alter table public.skills enable row level security;
+alter table public.reviews enable row level security;
+alter table public.exchanges enable row level security;
+alter table public.messages enable row level security;
+
+-- Profiles: public read; each user edits only their own row.
+create policy "Profiles are viewable by everyone" on public.profiles for select using (true);
+create policy "Users insert own profile" on public.profiles for insert to authenticated with check (auth.uid() = id);
+create policy "Users update own profile" on public.profiles for update to authenticated using (auth.uid() = id) with check (auth.uid() = id);
+
+-- Skills: public read; authenticated users manage only their own.
+create policy "Active skills are public" on public.skills for select using (is_active = true or auth.uid() = user_id);
+create policy "Users create own skills" on public.skills for insert to authenticated with check (auth.uid() = user_id);
+create policy "Users update own skills" on public.skills for update to authenticated using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "Users delete own skills" on public.skills for delete to authenticated using (auth.uid() = user_id);
+
+-- Reviews: public read; authenticated users can create one review per other user.
+create policy "Reviews are public" on public.reviews for select using (true);
+create policy "Users create reviews as themselves" on public.reviews for insert to authenticated with check (auth.uid() = reviewer_id and reviewer_id <> reviewed_id);
+-- No update/delete policy: submitted reviews remain auditable.
+
+-- Exchanges: only sender/recipient can read; sender creates; recipient changes status.
+create policy "Participants read exchanges" on public.exchanges for select to authenticated using (auth.uid() = from_user or auth.uid() = to_user);
+create policy "Sender creates exchange" on public.exchanges for insert to authenticated with check (auth.uid() = from_user and from_user <> to_user);
+create policy "Recipient updates exchange" on public.exchanges for update to authenticated using (auth.uid() = to_user) with check (auth.uid() = to_user);
+
+-- Messages: only sender/receiver can read; sender sends as themselves.
+create policy "Participants read messages" on public.messages for select to authenticated using (auth.uid() = sender_id or auth.uid() = receiver_id);
+create policy "Sender sends message" on public.messages for insert to authenticated with check (auth.uid() = sender_id and sender_id <> receiver_id);
+
+-- Storage: create a PUBLIC bucket named avatars in Storage UI, then add these policies.
+create policy "Avatar images are public" on storage.objects for select using (bucket_id = 'avatars');
+create policy "Users upload own avatar folder" on storage.objects for insert to authenticated with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "Users update own avatar folder" on storage.objects for update to authenticated using (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text) with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = auth.uid()::text);
+
+-- Enable Realtime for chat messages (safe to run once; ignore duplicate publication membership).
+do $$ begin
+  alter publication supabase_realtime add table public.messages;
+exception when duplicate_object then null;
+when undefined_object then null;
+end $$;
