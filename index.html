@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08051F">
+  <meta name="description" content="TradeUp: intercambia habilidades, aprende y crece.">
+  <title>TradeUp — Intercambia. Aprende. Crece.</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <section id="landing" class="landing">
+    <header class="brand"><div class="logo" aria-hidden="true"><span>↑</span><span>↑</span></div><span>Trade<span class="purple-text">Up</span></span></header>
+    <main class="hero">
+      <div class="hero-logo"><div class="logo big" aria-hidden="true"><span>↑</span><span>↑</span></div></div>
+      <p class="eyebrow">TU TALENTO TIENE VALOR</p>
+      <h1>Trade<span class="purple-text">Up</span></h1>
+      <p class="hero-copy">Intercambia. Aprende. Crece.<br>Conecta con personas y convierte lo que sabes en nuevas oportunidades.</p>
+      <button class="btn primary wide" id="startBtn">Comenzar →</button>
+      <p class="login-line">¿Ya tienes cuenta? <button class="link-btn" id="loginBtn">Inicia sesión</button></p>
+      <div class="landing-pills"><span>✦ Habilidades</span><span>↗ Comunidad</span><span>⇄ Intercambios</span></div>
+    </main>
+    <div class="decor decor-one"></div><div class="decor decor-two"></div>
+  </section>
+
+  <section id="auth" class="auth-screen hidden">
+    <button class="back-link" id="backHome">← Volver al inicio</button>
+    <div class="auth-card">
+      <div class="brand auth-brand"><div class="logo"><span>↑</span><span>↑</span></div><span>Trade<span class="purple-text">Up</span></span></div>
+      <p class="eyebrow">TU PRÓXIMA HABILIDAD EMPIEZA AQUÍ</p>
+      <h2 id="authTitle">¡Únete a TradeUp!</h2>
+      <form id="authForm">
+        <label id="nameLabel">¿Cómo te llamas?<input id="nameInput" placeholder="Tu nombre" required></label>
+        <label>Correo electrónico<input id="emailInput" type="email" placeholder="tu@correo.com" required></label>
+        <label>Contraseña (demo)<input id="passwordInput" type="password" minlength="4" placeholder="Mínimo 4 caracteres" required></label>
+        <button class="btn primary wide" id="authSubmit" type="submit">Crear mi cuenta →</button>
+      </form>
+      <p class="fine-print">Prototipo de demostración: el registro y el inicio de sesión todavía no verifican cuentas en un servidor.</p>
+    </div>
+  </section>
+
+  <section id="dashboard" class="dashboard hidden">
+    <aside class="sidebar">
+      <div class="brand side-brand"><div class="logo"><span>↑</span><span>↑</span></div><span>Trade<span class="purple-text">Up</span></span></div>
+      <p class="nav-label">MENÚ PRINCIPAL</p>
+      <nav class="side-nav">
+        <button data-page="home" class="nav-item active">⌂ <span>Inicio</span></button>
+        <button data-page="explore" class="nav-item">⌕ <span>Explorar</span></button>
+        <button data-page="publish" class="nav-item">⊕ <span>Publicar habilidad</span></button>
+        <button data-page="messages" class="nav-item">✉ <span>Mensajes</span></button>
+        <button data-page="notifications" class="nav-item">♧ <span>Notificaciones</span><b id="notificationBadge">2</b></button>
+        <p class="nav-label secondary-label">MI ESPACIO</p>
+        <button data-page="exchanges" class="nav-item">⇄ <span>Mis intercambios</span></button>
+        <button data-page="profile" class="nav-item">◎ <span>Mi perfil</span></button>
+        <button data-page="premium" class="nav-item">✦ <span>Planes Premium</span></button>
+        <button data-page="inperson" class="nav-item premium-nav hidden">⌖ <span>Intercambio presencial</span><em>PRO</em></button>
+        <button data-page="groups" class="nav-item premium-nav hidden">▤ <span>Sesiones grupales</span><em>PRO</em></button>
+        <button data-page="advanced" class="nav-item premium-nav hidden">⚙ <span>Filtros avanzados</span><em>PRO</em></button>
+      </nav>
+      <div class="sidebar-promo"><span class="mint-text">✳</span><strong>Tu talento vale más cuando lo compartes.</strong><p>Encuentra a alguien con quien aprender algo nuevo.</p><button class="btn mint" data-page="explore">Descubrir personas ↗</button></div>
+      <small class="copyright">TradeUp © 2026</small>
+    </aside>
+    <main class="main-area">
+      <header class="topbar"><div><small>Tu espacio / <span id="breadcrumb">Inicio</span></small><strong>Intercambia. Aprende. Crece.</strong></div><div class="top-actions"><button class="avatar avatar-small" data-page="profile" id="headerAvatar">S</button></div></header>
+      <div id="pageContent" class="page-content"></div>
+      <nav class="mobile-nav">
+        <button data-page="home" class="active">⌂<small>Inicio</small></button><button data-page="explore">⌕<small>Explorar</small></button><button data-page="publish" class="mobile-plus">+</button><button data-page="premium">✦<small>Planes</small></button><button data-page="notifications">♧<small>Avisos</small></button><button data-page="profile">◎<small>Perfil</small></button>
+      </nav>
+    </main>
+  </section>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
+</body>
+</html>
