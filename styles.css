@@ -64,5 +64,5 @@
 #pageContent .plan-card{display:flex!important;visibility:visible;opacity:1;min-height:100%;color:var(--navy)}
 #pageContent .plan-card h3,#pageContent .plan-card .plan-price,#pageContent .plan-card ul,#pageContent .plan-card li{visibility:visible;opacity:1}
 @media(max-width:900px){#pageContent .plan-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#pageContent .plan-card:first-child{grid-column:1/-1}}
-@media(max-width:760px){.mobile-nav{grid-template-columns:repeat(6,minmax(0,1fr))}.mobile-nav button{font-size:16px}.mobile-nav button small{font-size:8px}}
+@media(max-width:760px){.mobile-nav{grid-template-columns:repeat(5,minmax(0,1fr))}.mobile-nav button{font-size:16px}.mobile-nav button small{font-size:8px}}
 @media(max-width:600px){#pageContent .plan-grid{grid-template-columns:1fr}#pageContent .plan-card:first-child{grid-column:auto}}
